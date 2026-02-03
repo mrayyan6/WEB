@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task 4/2/26 </title>
+    <style>
+        .outer-div {
+            width: 500px;
+            height: 400px;
+            border: 2px solid black;
+            position: relative;
+            margin: 20px;
+        }
+
+        .inner-div {
+            width: 100px;
+            height: 100px;
+            background-color: lightblue;
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: move;
+            transition: all 0.3s ease;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="outer-div">
+        <div class="inner-div">
+            <button id="moveBtn">Click Me</button>
+        </div>
+    </div>
+
+    <script>
+        const button = document.getElementById('moveBtn');
+        const innerDiv = document.querySelector('.inner-div');
+        const outerDiv = document.querySelector('.outer-div');
+        let isMoving = false;
+        let moveInterval;
+
+        function moveRandomly() {
+            const outerWidth = outerDiv.offsetWidth;
+            const outerHeight = outerDiv.offsetHeight;
+            const divWidth = innerDiv.offsetWidth;
+            const divHeight = innerDiv.offsetHeight;
+
+            const randomLeft = Math.random() * (outerWidth - divWidth);
+            const randomTop = Math.random() * (outerHeight - divHeight);
+
+            innerDiv.style.left = randomLeft + 'px';
+            innerDiv.style.top = randomTop + 'px';
+        }
+
+        button.addEventListener('click', function() {
+            if (!isMoving) {
+                isMoving = true;
+                button.textContent = 'Stop';
+                moveInterval = setInterval(moveRandomly, 500);
+            } else {
+                isMoving = false;
+                button.textContent = 'Click Me';
+                clearInterval(moveInterval);
+            }
+        });
+    </script>
+</body>
+</html>

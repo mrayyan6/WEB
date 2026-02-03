@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Web Learning</title>
+  <meta name="description" content="Web Learning website.">
+  <meta name="author" content="Rayyan Masroor">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="index, follow">
+  <meta name="theme-color" content="#000000">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <link rel="stylesheet" href="i23-0502_C_manual.css">
+  </head>
+
+<body>
+  <nav style="position: fixed; top: 0; left: 0; width: 100%; z-index: 1000;">
+    <a href="#signup"><span class="material-icons">person_add</span> Sign Up</a>
+    <a href="#login"><span class="material-icons">login</span> Login</a>
+    <a href="#feedback"><span class="material-icons">feedback</span> Feedback</a>
+    <a href="#about"><span class="material-icons">info</span> About</a>
+  </nav>
+
+
+  <section id="login"> 
+
+    <h1 style = "text-align: center;">Login</h1>
+    <p style="text-align: center;">Please enter your credentials to log in.</p>
+
+
+    <form action="#gallery">
+      <label>Username:</label><br>
+      <input type="text"><br><br>
+
+      <label>Password:</label><br>
+      <input type="password"><br><br>
+
+      <input type="submit" value="Login">
+    </form>
+
+    <br>
+
+    <p style="text-align: center;">
+      Don't have an account?
+      <a href="#signup">Sign up here</a>
+    </p>
+  </section>
+
+
+
+  <!-- SIGNUP SECTION -->
+  <section id="signup">
+    <h1 style="text-align: center;">Sign Up</h1>
+    <p style="text-align: center;">Please fill the form below to create an account.</p>
+
+    <form action="#gallery">
+      <label>Full Name:</label><br>
+      <input type="text"><br><br>
+
+      <label>Email:</label><br>
+      <input type="email"><br><br>
+
+      <label>Username:</label><br>
+      <input type="text"><br><br>
+
+      <label>Password:</label><br>
+      <input type="password"><br><br>
+
+      <label>Confirm Password:</label><br>
+      <input type="password"><br><br>
+
+      <input type="submit" value="Sign Up">
+    </form>
+
+    <br>
+
+    <p style="text-align: center;">
+      Already have an account?
+      <a href="#login">Login here</a>
+    </p>
+  </section>
+
+
+
+  <!-- GALLERY SECTION -->
+  <section id="gallery">
+    <h1 style="text-align: center;">Car Gallery</h1>
+    <h2 style="text-align: center;">Welcome to the Car Gallery!</h2>
+
+    <p style="text-align: center;">
+      Here we see cars like Lamborghini, McLaren, Bentley, and Mustang.
+    </p>
+
+    <br>
+
+    <div class="gallery-grid">
+      <img src="lambo.jpg" alt="Lamborghini" width="300" height="200">
+      <img src="mclaren.jpg" alt="McLaren" width="300" height="200">
+      <img src="bentley.jpg" alt="Bentley" width="300" height="200">
+      <img src="mustang.jpg" alt="Mustang" width="300" height="200">
+    </div>
+  </section>
+
+
+
+  <!-- ABOUT SECTION -->
+  <section id="about" class="about-section">
+    <h1 style = "text-align: center;">About Us</h1>
+
+    <div class="gallery-grid">
+      <img src="lambo.jpg" alt="Lamborghini" width="300" height="200">
+      <img src="mclaren.jpg" alt="McLaren" width="300" height="200">
+    </div>
+
+    <p style="text-align: center;">At Web Learning, we are passionate about both web development and high-performance cars. Our team is dedicated to providing top-notch educational content while sharing our love for iconic vehicles like Lamborghini and McLaren.</p>
+  </section>
+
+
+  <!-- FEEDBACK SECTION -->
+  <section id="feedback">
+    <h1 style="text-align: center;">Feedback</h1>
+    <p style="text-align: center;">Please enter your feedback below.</p>
+
+    <form>
+      <label>Feedback:</label><br>
+      <input type="text"><br><br>
+
+      <input type="submit" value="Submit Feedback">
+    </form>
+  </section>
+
+</body>
+</html>
