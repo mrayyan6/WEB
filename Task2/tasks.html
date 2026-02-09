@@ -1,77 +1,381 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Task 4/2/26 </title>
+    <title>Archery Game</title>
     <style>
-        .outer-div {
-            width: 500px;
-            height: 400px;
-            border: 2px solid black;
-            position: relative;
-            margin: 20px;
+        body {
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(to bottom, #87CEEB, #E0F7FA);
+            font-family: Arial, sans-serif;
+            overflow: hidden;
+            user-select: none;
         }
 
-        .inner-div {
-            width: 100px;
-            height: 100px;
-            background-color: lightblue;
+        #gameUI {
+            position: absolute;
+            top: 20px;
+            left: 0;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            gap: 50px;
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        .stat-box {
+            background: rgba(255, 255, 255, 0.8);
+            padding: 10px 20px;
+            border-radius: 15px;
+            font-size: 24px;
+            font-weight: bold;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        #gameArea {
+            position: relative;
+            width: 100%;
+            height: 100vh;
+            overflow: hidden;
+            cursor: crosshair;
+        }
+
+        #bow {
+            position: absolute;
+            left: 30px;
+            top: 50%;
+            transform: translateY(-50%) rotate(45deg);
+            font-size: 100px;
+            z-index: 2;
+        }
+
+        #arrow {
+            position: absolute;
+            left: 80px;
+            top: 50%;
+            height: 6px;
+            width: 120px;
+            background-color: brown;
+            border-radius: 2px;
+            display: none;
+            /* Hidden until shot */
+            z-index: 1;
+        }
+
+        #arrow::after {
+            content: '';
+            position: absolute;
+            right: -15px;
+            top: -7px;
+            border-left: 15px solid brown;
+            border-top: 10px solid transparent;
+            border-bottom: 10px solid transparent;
+        }
+
+        #target {
+            position: absolute;
+            right: 50px;
+            top: 50%;
+            width: 120px;
+            height: 120px;
+            background: radial-gradient(circle, yellow 20%, red 20%, red 40%, blue 40%, blue 60%, black 60%, black 80%, white 80%);
+            border-radius: 50%;
+            border: 2px solid #333;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            z-index: 2;
+        }
+
+        #gameOverModal {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            z-index: 20;
+        }
+
+        #gameOverModal h1 {
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+
+        #finalScore {
+            font-size: 32px;
+            margin-bottom: 30px;
+            color: yellow;
+        }
+
+        #restartBtn {
+            padding: 15px 40px;
+            font-size: 24px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: transform 0.2s, background-color 0.2s;
+        }
+
+        #restartBtn:hover {
+            transform: scale(1.1);
+            background-color: #45a049;
+        }
+
+        #controlsHint {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 16px;
+            color: rgba(0, 0, 0, 0.5);
+            pointer-events: none;
+            text-align: center;
+        }
+
+        #instructionBox {
             position: absolute;
             top: 20px;
             left: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: move;
-            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid #ccc;
+            font-size: 14px;
+            color: #333;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            pointer-events: none;
+            z-index: 15;
+            max-width: 250px;
+            line-height: 1.5;
         }
 
-        button {
-            padding: 10px 20px;
-            font-size: 16px;
-            cursor: pointer;
+        #instructionBox strong {
+            color: #d32f2f;
         }
     </style>
 </head>
+
 <body>
-    <div class="outer-div">
-        <div class="inner-div">
-            <button id="moveBtn">Click Me</button>
-        </div>
+
+    <div id="instructionBox">
+        <p><strong>Press ESC Once:</strong> Make Target Static (Freeze).</p>
+        <p><strong>Press ESC Again:</strong> Make Target Moving (Unfreeze).</p>
+    </div>
+
+    <div id="gameUI">
+        <div class="stat-box" id="scoreDisplay">Score: 0</div>
+        <div class="stat-box" id="ammoDisplay">Arrows: 10</div>
+    </div>
+
+    <div id="gameArea">
+        <div id="bow">🏹</div>
+        <div id="arrow"></div>
+        <div id="target"></div>
+    </div>
+
+    <div id="controlsHint">SPACE/Click: Shoot | Moving Target = 10 pts | Static Target = 5 pts</div>
+
+    <div id="gameOverModal">
+        <h1>GAME OVER</h1>
+        <div id="finalScore">Score: 0</div>
+        <button id="restartBtn">Play Again</button>
     </div>
 
     <script>
-        const button = document.getElementById('moveBtn');
-        const innerDiv = document.querySelector('.inner-div');
-        const outerDiv = document.querySelector('.outer-div');
-        let isMoving = false;
-        let moveInterval;
+        // DOM Elements
+        const arrow = document.getElementById("arrow");
+        const target = document.getElementById("target");
+        const bow = document.getElementById("bow");
+        const scoreDisplay = document.getElementById("scoreDisplay");
+        const ammoDisplay = document.getElementById("ammoDisplay");
+        const gameOverModal = document.getElementById("gameOverModal");
+        const finalScoreDisplay = document.getElementById("finalScore");
+        const restartBtn = document.getElementById("restartBtn");
+        const gameArea = document.getElementById("gameArea");
 
-        function moveRandomly() {
-            const outerWidth = outerDiv.offsetWidth;
-            const outerHeight = outerDiv.offsetHeight;
-            const divWidth = innerDiv.offsetWidth;
-            const divHeight = innerDiv.offsetHeight;
+        const MAX_ARROWS = 10;
+        const INITIAL_TARGET_SPEED = 5;
+        const ARROW_START_X = 120;
 
-            const randomLeft = Math.random() * (outerWidth - divWidth);
-            const randomTop = Math.random() * (outerHeight - divHeight);
+        let score = 0;
+        let arrowsLeft = MAX_ARROWS;
+        let targetSpeed = INITIAL_TARGET_SPEED;
+        let targetDirection = 1;
+        let isGameActive = false;
+        let arrowMoving = false;
+        let isTargetFrozen = false;
 
-            innerDiv.style.left = randomLeft + 'px';
-            innerDiv.style.top = randomTop + 'px';
+        let successfulHits = 0;
+        let arrowInterval = null;
+        let targetInterval = null;
+
+        function startGame() {
+            score = 0;
+            arrowsLeft = MAX_ARROWS;
+            targetSpeed = INITIAL_TARGET_SPEED;
+            isGameActive = true;
+            arrowMoving = false;
+            isTargetFrozen = false;
+            successfulHits = 0;
+
+            updateUI();
+            gameOverModal.style.display = "none";
+            arrow.style.display = "none";
+
+            if (targetInterval) clearInterval(targetInterval);
+            targetInterval = setInterval(moveTarget, 20);
         }
 
-        button.addEventListener('click', function() {
-            if (!isMoving) {
-                isMoving = true;
-                button.textContent = 'Stop';
-                moveInterval = setInterval(moveRandomly, 500);
+        function endGame() {
+            isGameActive = false;
+            clearInterval(targetInterval);
+            finalScoreDisplay.textContent = "Final Score: " + score;
+            gameOverModal.style.display = "flex";
+        }
+
+        function updateUI() {
+            scoreDisplay.textContent = "Score: " + score;
+            ammoDisplay.textContent = "Arrows: " + arrowsLeft;
+        }
+
+        function moveTarget() {
+            if (!isGameActive || isTargetFrozen) return;
+
+            let currentTop = target.offsetTop;
+            let gameHeight = gameArea.clientHeight;
+            let targetHeight = target.offsetHeight;
+
+            if (currentTop <= 0) {
+                targetDirection = 1;
+            } else if (currentTop + targetHeight >= gameHeight) {
+                targetDirection = -1;
+            }
+            target.style.top = (currentTop + (targetSpeed * targetDirection)) + "px";
+        }
+
+        function toggleFreeze() {
+            if (!isGameActive) return;
+
+            if (isTargetFrozen) {
+                isTargetFrozen = false;
             } else {
-                isMoving = false;
-                button.textContent = 'Click Me';
-                clearInterval(moveInterval);
+                isTargetFrozen = true;
+                let gameHeight = gameArea.clientHeight;
+                let targetHeight = target.offsetHeight;
+                target.style.top = (gameHeight / 2 - targetHeight / 2) + "px";
+            }
+        }
+
+        function shootArrow() {
+            if (!isGameActive || arrowMoving) return;
+
+            if (arrowsLeft <= 0) {
+                return;
+            }
+
+            arrowsLeft--;
+            updateUI();
+
+            let bowTop = bow.offsetTop;
+            arrow.style.top = "50%";
+            arrow.style.left = ARROW_START_X + "px";
+            arrow.style.display = "block";
+
+            arrowMoving = true;
+
+            if (arrowInterval) clearInterval(arrowInterval);
+            arrowInterval = setInterval(moveArrow, 10);
+        }
+
+        function moveArrow() {
+            let currentLeft = arrow.offsetLeft;
+            let gameWidth = gameArea.clientWidth;
+
+            arrow.style.left = (currentLeft + 15) + "px";
+
+            if (checkCollision()) {
+                handleHit();
+                resetArrow();
+                checkGameOverCondition();
+                return;
+            }
+
+            if (currentLeft > gameWidth) {
+                resetArrow();
+                checkGameOverCondition();
+            }
+        }
+
+        function checkCollision() {
+            let arrowRect = arrow.getBoundingClientRect();
+            let targetRect = target.getBoundingClientRect();
+
+            return (
+                arrowRect.right >= targetRect.left &&
+                arrowRect.left <= targetRect.right &&
+                arrowRect.top <= targetRect.bottom &&
+                arrowRect.bottom >= targetRect.top
+            );
+        }
+
+        function handleHit() {
+            if (isTargetFrozen) {
+                score += 5;
+            } else {
+                score += 10;
+            }
+
+            successfulHits++;
+            increaseDifficulty();
+            updateUI();
+        }
+
+        function increaseDifficulty() {
+            if (successfulHits % 2 === 0) {
+                targetSpeed += 1;
+            }
+        }
+
+        function resetArrow() {
+            clearInterval(arrowInterval);
+            arrow.style.display = "none";
+            arrowMoving = false;
+        }
+
+        function checkGameOverCondition() {
+            if (arrowsLeft === 0) {
+                endGame();
+            }
+        }
+
+        document.addEventListener("keydown", (e) => {
+            if (e.code === "Space") {
+                e.preventDefault();
+                shootArrow();
+            } else if (e.code === "Escape") {
+                toggleFreeze();
             }
         });
+
+        gameArea.addEventListener("click", () => {
+            shootArrow();
+        });
+
+        restartBtn.addEventListener("click", startGame);
+
+        startGame();
+
     </script>
 </body>
+
 </html>
