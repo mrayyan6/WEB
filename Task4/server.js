@@ -1,10 +1,9 @@
 const express = require("express");
+const x = require("./routes/users");
 const app = express();
 
-app.get("/", (req, res) => {
-  res.send("Server is working!");
-});
+app.use("/users", x);
 
 app.listen(3000, () => {
-  console.log("Running on http://localhost:3000");
+  console.log("Running on http://localhost:3000/users/Rayyan");
 });
