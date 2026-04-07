@@ -8,9 +8,10 @@
 require('dotenv').config();
 
 const express = require('express');
-const mongoose = require('mongoose');
 const session = require('express-session');
 const User = require('./routes/User-AI');
+const SyncRecord = require('./models/SyncRecord');
+const { connectToDatabase } = require('./config/database');
 
 const app = express();
 
@@ -36,15 +37,6 @@ app.use(session({
         maxAge: 1000 * 60 * 60      // 1 hour in milliseconds
     }
 }));
-
-// ─── MongoDB Connection ─────────────────────────────────────────────────────
-// Gracefully handle connection errors and log success/failure to the console.
-mongoose.connect('mongodb://localhost:27017/studentDB')
-    .then(() => console.log('✅  Connected to MongoDB — studentDB'))
-    .catch((err) => {
-        console.error('❌  MongoDB connection error:', err.message);
-        process.exit(1);    // stop the server if the DB is unreachable
-    });
 
 // ─── Authentication Middleware ──────────────────────────────────────────────
 // Reusable guard: if the user has an active session, proceed;
@@ -116,6 +108,67 @@ app.post('/login', async (req, res) => {
     }
 });
 
+// ── POST /sync-login-data ───────────────────────────────────────────────────
+// Checks for an existing record by identifier. If one exists, returns it.
+// Otherwise, creates a new document with the client-side payload and returns it.
+app.post('/sync-login-data', isAuthenticated, async (req, res) => {
+    try {
+        const { identifier, clientData } = req.body;
+
+        if (!identifier || typeof identifier !== 'string' || !identifier.trim()) {
+            return res.status(400).json({
+                message: 'A valid identifier is required'
+            });
+        }
+
+        const normalizedIdentifier = identifier.trim();
+        const existingRecord = await SyncRecord.findOne({ identifier: normalizedIdentifier }).lean();
+
+        if (existingRecord) {
+            return res.status(200).json({
+                message: 'Existing data found',
+                synced: false,
+                data: existingRecord
+            });
+        }
+
+        const newRecord = new SyncRecord({
+            identifier: normalizedIdentifier,
+            clientData: clientData ?? {},
+            syncedAt: new Date()
+        });
+
+        await newRecord.save();
+
+        return res.status(201).json({
+            message: 'New data created and synced',
+            synced: true,
+            data: newRecord
+        });
+    } catch (error) {
+        if (error.code === 11000) {
+            const identifier = req.body?.identifier?.trim();
+
+            if (identifier) {
+                const record = await SyncRecord.findOne({ identifier }).lean();
+
+                if (record) {
+                    return res.status(200).json({
+                        message: 'Existing data found',
+                        synced: false,
+                        data: record
+                    });
+                }
+            }
+        }
+
+        console.error('Sync error:', error.message);
+        return res.status(500).json({
+            message: 'Internal server error'
+        });
+    }
+});
+
 // ── GET /dashboard ──────────────────────────────────────────────────────────
 // Protected route — only accessible to authenticated users.
 app.get('/dashboard', isAuthenticated, (req, res) => {
@@ -139,6 +192,21 @@ app.get('/logout', (req, res) => {
 
 // ─── Start the Server ───────────────────────────────────────────────────────
 const PORT = 3000;
-app.listen(PORT, () => {
-    console.log(`🚀  Server running on http://localhost:${PORT}`);
-});
+async function startServer()
+{
+    try
+    {
+        await connectToDatabase();
+
+        app.listen(PORT, () => {
+            console.log(`🚀  Server running on http://localhost:${PORT}`);
+        });
+    }
+    catch (error)
+    {
+        console.error('Server startup failed:', error.message);
+        process.exit(1);
+    }
+}
+
+startServer();

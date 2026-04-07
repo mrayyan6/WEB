@@ -3,6 +3,7 @@ import { Dashboard } from './dashboard/dashboard';
 import { Home } from './home/home';
 import { About } from './about/about';
 import { Feedback } from './feedback/feedback';
+import { ParentComponent } from './parent/parent.component';
 
 export const routes: Routes = [
 	{
@@ -30,6 +31,10 @@ export const routes: Routes = [
 			{
 				path: 'feedback',
 				component: Feedback,
+			},
+			{
+				path: 'parent',
+				component: ParentComponent,
 			},
 		],
 	},
