@@ -1,2 +1,31 @@
 node_modules/
 .env
+
+# Claude local config folders
+.claude/
+
+# Task7 local data folder (keep off GitHub)
+Task7/data/
+
+# Task7 (Next.js app)
+Task7/.pnp
+Task7/.pnp.*
+Task7/.yarn/*
+!Task7/.yarn/patches
+!Task7/.yarn/plugins
+!Task7/.yarn/releases
+!Task7/.yarn/versions
+Task7/coverage
+Task7/.next/
+Task7/out/
+Task7/build
+Task7/.DS_Store
+Task7/*.pem
+Task7/npm-debug.log*
+Task7/yarn-debug.log*
+Task7/yarn-error.log*
+Task7/.pnpm-debug.log*
+Task7/.env*
+Task7/.vercel
+Task7/*.tsbuildinfo
+Task7/next-env.d.ts
