@@ -3,6 +3,8 @@ node_modules/
 
 # Claude local config folders
 .claude/
+CLAUDE.md
+AGENTS.md
 
 # Task7 local data folder (keep off GitHub)
 Task7/data/
