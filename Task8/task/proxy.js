@@ -5,31 +5,42 @@ export function proxy(request) {
   const token = request.cookies.get("token")?.value;
   const { pathname } = request.nextUrl;
 
+  // Already logged in — skip the login page
   if (pathname.startsWith("/login")) {
     if (token) {
       try {
-        jwt.verify(token, process.env.JWT_SECRET);
-        return NextResponse.redirect(new URL("/dashboard", request.url));
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        return NextResponse.redirect(new URL(`/dashboard/${decoded.role}`, request.url));
       } catch {
-        // invalid token — let them see the login page
+        // invalid token — show login
       }
     }
     return NextResponse.next();
   }
 
-  // protect /dashboard
+  // Protected dashboard routes
   if (!token) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
 
+  let decoded;
   try {
-    jwt.verify(token, process.env.JWT_SECRET);
-    return NextResponse.next();
+    decoded = jwt.verify(token, process.env.JWT_SECRET);
   } catch {
     return NextResponse.redirect(new URL("/login", request.url));
   }
+
+  // Prevent employees from accessing /dashboard/owner and vice versa
+  if (pathname.startsWith("/dashboard/owner") && decoded.role !== "owner") {
+    return NextResponse.redirect(new URL(`/dashboard/${decoded.role}`, request.url));
+  }
+  if (pathname.startsWith("/dashboard/employee") && decoded.role !== "employee") {
+    return NextResponse.redirect(new URL(`/dashboard/${decoded.role}`, request.url));
+  }
+
+  return NextResponse.next();
 }
 
 export const config = {
-  matcher: ["/login", "/dashboard/:path*"],
+  matcher: ["/login", "/dashboard/owner/:path*", "/dashboard/employee/:path*"],
 };

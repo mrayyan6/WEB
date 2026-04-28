@@ -7,6 +7,7 @@ export default function LoginPage() {
   const router = useRouter();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [role, setRole] = useState("owner");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -19,16 +20,17 @@ export default function LoginPage() {
       const res = await fetch("/api/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, password }),
+        body: JSON.stringify({ username, password, role }),
       });
 
+      const data = await res.json();
+
       if (!res.ok) {
-        const data = await res.json();
         setError(data.error || "Login failed");
         return;
       }
 
-      router.push("/dashboard");
+      router.push(`/dashboard/${data.role}`);
     } catch {
       setError("Something went wrong. Please try again.");
     } finally {
@@ -56,6 +58,14 @@ export default function LoginPage() {
           required
           style={{ padding: 8, fontSize: 16 }}
         />
+        <select
+          value={role}
+          onChange={(e) => setRole(e.target.value)}
+          style={{ padding: 8, fontSize: 16 }}
+        >
+          <option value="owner">Owner</option>
+          <option value="employee">Employee</option>
+        </select>
         {error && <p style={{ color: "red", margin: 0 }}>{error}</p>}
         <button type="submit" disabled={loading} style={{ padding: 10, fontSize: 16, cursor: "pointer" }}>
           {loading ? "Logging in..." : "Login"}
